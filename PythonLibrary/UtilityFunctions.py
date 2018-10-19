@@ -158,6 +158,10 @@ def DetachedSignWithSignTool(SignToolPath, ToSignFilePath, SignatureOutputFile, 
         logging.error("Path to signtool invalid.  %s" % SignToolPath)
         return -1
 
+    # Adjust for spaces in the path (when calling the command).
+    if " " in SignToolPath:
+        SignToolPath = '"' + SignToolPath + '"'
+
     OutputDir = os.path.dirname(SignatureOutputFile)
     #Signtool docs https://docs.microsoft.com/en-us/dotnet/framework/tools/signtool-exe
     #Signtool parameters from https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/secure-boot-key-generation-and-signing-using-hsm--example
@@ -192,6 +196,10 @@ def CatalogSignWithSignTool(SignToolPath, ToSignFilePath, PfxFilePath, PfxPass=N
     if not os.path.exists(SignToolPath):
         logging.error("Path to signtool invalid.  %s" % SignToolPath)
         return -1
+
+    # Adjust for spaces in the path (when calling the command).
+    if " " in SignToolPath:
+        SignToolPath = '"' + SignToolPath + '"'
 
     OutputDir = os.path.dirname(ToSignFilePath)
     #Signtool docs https://docs.microsoft.com/en-us/dotnet/framework/tools/signtool-exe
