@@ -1,5 +1,5 @@
 {
-  "scope": "global-win",
+  "scope": "global-win-off",
   "type": "nuget",
   "name": "Mu-Basetools-Win32",
   "source": "https://api.nuget.org/v3/index.json",
