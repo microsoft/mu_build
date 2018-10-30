@@ -282,7 +282,7 @@ class IMuBuildPlugin(object):
             for entry in allEntries:
                 if entry.endswith(".dsc"):
                     dscFile = entry
-                if entry.endswith(".mu.dsc.json"):
+                if entry.endswith(".mu.dsc.yaml") :
                     jsonFile = entry
 
             if jsonFile:

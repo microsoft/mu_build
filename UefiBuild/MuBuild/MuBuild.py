@@ -29,7 +29,7 @@
 import os
 import sys
 import logging
-import json
+import yaml
 import traceback
 import argparse
 
@@ -53,21 +53,6 @@ import ConfigValidator
 
 PROJECT_SCOPES = ("project_mu",)
 TEMP_MODULE_DIR = "temp_modules"
-
-#
-# To support json that has comments it must be preprocessed
-#
-def strip_json_from_file(filepath):
-    with open(filepath, 'r') as f:
-        lines = f.readlines()
-        out = ""
-        for a in lines:
-            l = len(a)
-            a = a.partition("#")[0]
-            a = a.rstrip()
-            rem = l - len(a)
-            out += a + (" " * rem) + "\n"
-        return out
 
 def get_mu_config():
     parser = argparse.ArgumentParser(description='Run the Mu Build')
@@ -108,7 +93,7 @@ if __name__ == '__main__':
         raise Exception("Invalid path to mu.json file for build: ", mu_config_filepath)
     
     #have a build config file
-    mu_config = json.loads(strip_json_from_file(mu_config_filepath))
+    mu_config = yaml.load(mu_config_filepath)
     WORKSPACE_PATH = os.path.realpath(os.path.join(os.path.dirname(mu_config_filepath), mu_config["RelativeWorkspaceRoot"]))
 
     #Setup the logging to the file as well as the console
@@ -215,7 +200,7 @@ if __name__ == '__main__':
         # load the package level .mu.json
         pkg_config_file = edk2path.GetAbsolutePathOnThisSytemFromEdk2RelativePath(os.path.join(pkgToRunOn, pkgToRunOn + ".mu.json"))
         if(pkg_config_file):
-            pkg_config = json.loads(strip_json_from_file(pkg_config_file))
+            pkg_config = yaml.load(pkg_config_file)
         else:
             logging.info("No Pkg Config file for {0}".format(pkgToRunOn))
             pkg_config = dict()

@@ -74,7 +74,7 @@ class SelfDescribingEnvironment(object):
       # Check for any files that match the extensions we're looking for.
       for file in files:
         for search_file in search_files:
-          if file.lower().endswith(search_file+".json"):
+          if file.lower().endswith(search_file+".json") or file.lower().endswith(search_file+".yaml"):
             if search_file in matches:
               matches[search_file].append(os.path.join(root, file))
             else:

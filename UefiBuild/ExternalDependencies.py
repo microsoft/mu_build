@@ -30,7 +30,7 @@ import os
 import logging
 from UtilityFunctions import RunCmd
 import shutil
-import json
+import yaml
 import time
 from io import StringIO
 
@@ -89,7 +89,7 @@ class ExternalDependency(object):
 
   def update_state_file(self):
     with open(self.state_file_path, 'w+') as file:
-      json.dump({'version': self.version}, file)
+      yaml.dump({'version': self.version}, file)
 
 
 class NugetDependency(ExternalDependency):
@@ -226,7 +226,7 @@ class NugetDependency(ExternalDependency):
     if result:
       with open(self.state_file_path, 'r') as file:
         try:
-          state_data = json.load(file)
+          state_data = yaml.load(file)
         except:
           pass
     if state_data is None:

@@ -27,7 +27,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ##
 import os
-import json
+import yaml
 import sys
 
 
@@ -55,7 +55,7 @@ class DescriptorFile(object):
 
     with open(file_path, 'r') as file:
       try:
-        self.descriptor_contents = json.load(file)
+        self.descriptor_contents = yaml.load(file)
       except:
         pass  # We'll pick up this error when looking at the data.
 

@@ -32,7 +32,7 @@ import os
 import sys
 import argparse
 import logging
-import json
+import yaml
 import xml.etree.ElementTree as etree
 import threading
 import subprocess
@@ -114,7 +114,7 @@ class NugetSupport(object):
     #
     def ToConfigFile(self, filepath=None):
         if(not self.ConfigChanged):
-            logging.debug("No Config Changes.  Skip Writing json config file")
+            logging.debug("No Config Changes.  Skip Writing config file")
             return 0
         
         if(filepath == None and self.Config == None):
@@ -126,15 +126,15 @@ class NugetSupport(object):
         
 
         with open(filepath, "w") as c:
-            json.dump(self.ConfigData, c, indent=4)
-        logging.debug("Wrote json config file to: %s" % filepath)
+            yaml.dump(self.ConfigData, c, indent=4)
+        logging.debug("Wrote config file to: %s" % filepath)
         self.ConfigChanged = False
         return 0
 
     def FromConfigfile(self, filepath):
         self.Config = filepath
         with open(self.Config, "r") as c:
-            self.ConfigData = json.load(c)
+            self.ConfigData = yaml.load(c)
 
     def SetBasicData(self, authors, license, project, description, server, copyright):
         self.ConfigData["author_string"] = authors
@@ -375,7 +375,7 @@ def main():
     if(args.Operation.lower() == "new"):
         logging.critical("Generating new nuget configuration...")
         logging.debug("Checking input parameters for new")
-        ConfigFilePath = os.path.join(args.ConfigFileFolderPath, args.Name.strip() + ".config.json")
+        ConfigFilePath = os.path.join(args.ConfigFileFolderPath, args.Name.strip() + ".config.yaml")
 
         if(not os.path.isdir(args.ConfigFileFolderPath)):
             logging.critical("Config File Folder Path doesn't exist.  %s" % args.ConfigFileFolderPath)
