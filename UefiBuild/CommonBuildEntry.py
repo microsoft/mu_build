@@ -77,12 +77,12 @@ def minimum_env_init(my_workspace_path, my_project_scope):
 
     # Check the Python version against minimums.
     cur_py = "%d.%d.%d" % sys.version_info[:3]
-    soft_min_py = "3.6"
-    hard_min_py = "2.7"
+    soft_min_py = "3.7"
+    hard_min_py = "3.6"
     if version_compare(hard_min_py, cur_py) > 0:
         raise RuntimeError("Please upgrade Python! Current version is %s. Minimum is %s." % (cur_py, hard_min_py))
     if version_compare(soft_min_py, cur_py) > 0:
-        logging.critical("Please upgrade Python! Current version is %s. Minimum is %s." % (cur_py, soft_min_py))
+        logging.critical("Please upgrade Python! Current version is %s. Recommended minimum is %s." % (cur_py, soft_min_py))
 
     # Initialized the build environment.
     return SelfDescribingEnvironment.BootstrapEnvironment(my_workspace_path, my_project_scope)
