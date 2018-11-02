@@ -134,7 +134,7 @@ class NugetSupport(object):
     def FromConfigfile(self, filepath):
         self.Config = filepath
         with open(self.Config, "r") as c:
-            self.ConfigData = yaml.load(c)
+            self.ConfigData = yaml.safe_load(c)
 
     def SetBasicData(self, authors, license, project, description, server, copyright):
         self.ConfigData["author_string"] = authors

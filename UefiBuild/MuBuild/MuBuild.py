@@ -36,7 +36,7 @@ import argparse
 #get path to self and then find SDE path and PythonLibrary path
 SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__)) 
 SDE_PATH = os.path.dirname(SCRIPT_PATH) #Path to SDE build env
-PL_PATH = os.path.join(os.path.dirname(SDE_PATH), "BaseTools", "PythonLibrary")
+PL_PATH = os.path.join(os.path.dirname(SDE_PATH), "PythonLibrary")
 sys.path.append(SDE_PATH)
 sys.path.append(PL_PATH)
 
@@ -52,7 +52,6 @@ import ConfigValidator
 
 
 PROJECT_SCOPES = ("project_mu",)
-TEMP_MODULE_DIR = "temp_modules"
 
 def get_mu_config():
     parser = argparse.ArgumentParser(description='Run the Mu Build')
@@ -93,7 +92,8 @@ if __name__ == '__main__':
         raise Exception("Invalid path to mu.json file for build: ", mu_config_filepath)
     
     #have a build config file
-    mu_config = yaml.load(mu_config_filepath)
+    with open(mu_config_filepath, 'r') as mu_config_file:
+        mu_config = yaml.safe_load(mu_config_file)
     WORKSPACE_PATH = os.path.realpath(os.path.join(os.path.dirname(mu_config_filepath), mu_config["RelativeWorkspaceRoot"]))
 
     #Setup the logging to the file as well as the console
@@ -198,9 +198,10 @@ if __name__ == '__main__':
         env = ShellEnvironment.GetBuildVars()
 
         # load the package level .mu.json
-        pkg_config_file = edk2path.GetAbsolutePathOnThisSytemFromEdk2RelativePath(os.path.join(pkgToRunOn, pkgToRunOn + ".mu.json"))
+        pkg_config_file = edk2path.GetAbsolutePathOnThisSytemFromEdk2RelativePath(os.path.join(pkgToRunOn, pkgToRunOn + ".mu.yaml"))
         if(pkg_config_file):
-            pkg_config = yaml.load(pkg_config_file)
+            with open(pkg_config_file, 'r') as f:
+                pkg_config = yaml.safe_load(f)
         else:
             logging.info("No Pkg Config file for {0}".format(pkgToRunOn))
             pkg_config = dict()

@@ -32,43 +32,36 @@ import urllib.request as req
 import urllib.parse as p
 
 '''
-Example MU CONFIG FILE
-{
-    "Name": "Project Mu BaseCore Repo CI Build",
-    "GroupName": "BaseCore",
-    "RelativeWorkspaceRoot": "",
-    "Scopes": ["basecore", "corebuild"],
-    "Dependencies": [
-         {
-            "Path": "Silicon/Arm/Tiano",
-            "Url": "https://github.com/Microsoft/mu_silicon_arm_tiano.git",
-            "Branch": "release/20180529"
-        }
-    ],
-    "PackagesPath": [
-        "self"
-    ],
-    "Packages":[
-        "MdeModulePkg",
-        "MdePkg",
-        "MsUnitTestPkg",
-        "NetworkPkg",
-        "PcAtChipsetPkg",
-        "PerformancePkg",
-        "SecurityPkg",
-        "UefiCpuPkg"
-    ],
-    "ArchSupported": [
-        "IA32",
-        "X64"
-    ],
-    "DependencyCheckPlugin": {
-        "skip":true
-    },
-    "DscCheckPlugin" : {
-        "Skip":true
-    }
-}
+Example_MU_CONFIG_FILE:
+    Name: Project Mu BaseCore Repo CI Build
+    GroupName: BaseCore
+    RelativeWorkspaceRoot: ""
+    Scopes:
+        - basecore
+        - corebuild
+    Dependencies:
+        - Silicon/Arm/Tiano
+            Path: Silicon/Arm/Tiano
+            Url: https://github.com/Microsoft/mu_silicon_arm_tiano.git
+            Branch: release/20180529
+    PackagesPath:
+
+    Packages:
+        - MdeModulePkg
+        - MdePkg
+        - MsUnitTestPkg
+        - NetworkPkg
+        - PcAtChipsetPkg
+        - PerformancePkg
+        - SecurityPkg
+        - UefiCpuPkg
+    ArchSupported:
+        - IA32
+        - X64
+    DependencyCheckPlugin:
+        skip: true
+    DscCheckPlugin
+        skip:true
 '''
 
 

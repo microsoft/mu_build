@@ -55,7 +55,7 @@ class DescriptorFile(object):
 
     with open(file_path, 'r') as file:
       try:
-        self.descriptor_contents = yaml.load(file)
+        self.descriptor_contents = yaml.safe_load(file)
       except:
         pass  # We'll pick up this error when looking at the data.
 

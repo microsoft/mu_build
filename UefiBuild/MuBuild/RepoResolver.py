@@ -27,7 +27,7 @@
 ##
 import os
 import logging
-import GitPython
+from git import Repo
 
 
 ##
@@ -41,7 +41,6 @@ def resolve(WORKSPACE_PATH,dependencies):
             logging.info("Dependency Exists - Leave it alone")
         else:
             #get it
-            os.makedirs(fsp)
             logging.critical("Cloning repo: {0}".format(a["Url"]))
             clone_repo(fsp, a)
         #print out details
@@ -54,18 +53,21 @@ def resolve(WORKSPACE_PATH,dependencies):
 #Gets the details of a particular repo
 
 def get_details(abs_file_system_path):
-    repo = GitPython.Repo(abs_file_system_path)
-    return {"Url": repo.url, "Branch": repo.active_branch, "Commit": repo.head}
+    repo = Repo(abs_file_system_path)
+    url = repo.remotes.origin.url
+    active_branch = repo.active_branch
+    head = repo.head.commit
+    return {"Url": url, "Branch": active_branch, "Commit": head}
 
 #Clones the repo in the folder we need using the dependency object from the json
 def clone_repo(abs_file_system_path, DepObj):
     dest = abs_file_system_path
     if not os.path.isdir(dest):
-        os.makedirs(dest)
+        os.makedirs(dest, exist_ok=True)
     shallow = True
     if "Commit" in DepObj:
         shallow = False
-    repo = GitPython.Repo.clone_from(DepObj["Url"],dest, shallow = shallow)
+    repo = Repo.clone_from(DepObj["Url"],dest, shallow = shallow)
     if "Commit" in DepObj:
         if DepObj["Commit"] == "*" or DepObj["Commit"] =="latest":
             logging.warning("Invalid commit id- please remove the commit id")
@@ -73,6 +75,7 @@ def clone_repo(abs_file_system_path, DepObj):
             repo.checkout(DepObj["Branch"])
     elif "Branch" in DepObj:
         repo.checkout(DepObj["Branch"])
-   
+
+    repo.submodule("update", "--init", "--recursive")
     return dest
 

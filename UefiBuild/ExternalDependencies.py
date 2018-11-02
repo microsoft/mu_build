@@ -226,7 +226,7 @@ class NugetDependency(ExternalDependency):
     if result:
       with open(self.state_file_path, 'r') as file:
         try:
-          state_data = yaml.load(file)
+          state_data = yaml.safe_load(file)
         except:
           pass
     if state_data is None:
