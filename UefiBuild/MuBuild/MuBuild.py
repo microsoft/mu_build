@@ -57,6 +57,9 @@ def get_mu_config():
     parser = argparse.ArgumentParser(description='Run the Mu Build')
     parser.add_argument ('-c', '--mu_config', dest = 'mu_config', required = True, type=str, help ='Provide the Mu config relative to the current working directory')
     parser.add_argument ('-p', '--pkg','--pkg-dir', dest='pkglist', nargs="+", type=str, help = 'A package or folder you want to test (abs path or cwd relative).  Can list multiple by doing -p <pkg1> <pkg2> <pkg3>', default=[])
+    parser.add_argument('-ignore','--ignore-git', dest="git_ignore",action="store_true",help="Whether to ignore errors in the git cloing process", default=False)
+    parser.add_argument('-force','--force-git', dest="git_force",action="store_true",help="Whether to force git repos to clone in the git cloing process", default=False)
+    parser.add_argument('-update-git','--update-git', dest="git_update",action="store_true",help="Whether to update git repos as needed in the git cloing process", default=False)
     args, sys.argv = parser.parse_known_args() 
     return args
 
@@ -120,7 +123,7 @@ if __name__ == '__main__':
 
     #Check Dependencies for Repo
     if "Dependencies" in mu_config:
-        pplist.extend(RepoResolver.resolve(WORKSPACE_PATH,mu_config["Dependencies"]))
+        pplist.extend(RepoResolver.resolve(WORKSPACE_PATH,mu_config["Dependencies"], ignore=buildArgs.git_ignore, force=buildArgs.git_force, update_ok=buildArgs.git_update))
 
 
 
@@ -178,7 +181,7 @@ if __name__ == '__main__':
     total_num = 0
 
     #Load plugins
-    pluginManager = PluginManager.PluginManager()
+    pluginManager = PluginManager.PluginManager()    
     pluginManager.SetListOfEnvironmentDescriptors(build_env.plugins)
     helper = PluginManager.HelperFunctions()
     helper.LoadFromPluginManager(pluginManager)

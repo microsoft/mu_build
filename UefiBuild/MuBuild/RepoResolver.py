@@ -27,26 +27,95 @@
 ##
 import os
 import logging
-from git import Repo
+from MuGit import Repo
+import shutil
+import stat
+
+#this follows a documented flow chart
+#TODO: include link to flowchart?
 
 
 ##
 # dependencies is a list of objects - it has Path, Commit, Branch,
-def resolve(WORKSPACE_PATH,dependencies):
+def resolve(WORKSPACE_PATH,dependencies,force=False,ignore=False, update_ok=False):
     packages = []
+    if force:
+        logging.info("Resolving dependencies by force")
+    if update_ok:
+        logging.info("Resolving dependencies with updates as needed")
     for a in dependencies:
         logging.info("Checking for dependency {0}".format(a["Path"]))
+
+        ##
+        ## NOTE - this process is defined in the Readme.md including flow chart for this behavior
+        ##
         fsp = os.path.join(WORKSPACE_PATH, a["Path"])
-        if os.path.isdir(fsp):
-            logging.info("Dependency Exists - Leave it alone")
-        else:
-            #get it
-            logging.critical("Cloning repo: {0}".format(a["Url"]))
-            clone_repo(fsp, a)
-        #print out details
         packages.append(fsp)
+        if not os.path.isdir(fsp):
+            clone_repo(fsp, a)
+            checkout(fsp, a, Repo(fsp), True, False)
+            continue
+
+        folder_empty = len(os.listdir(fsp)) == 0
+        if folder_empty: #if the folder is empty, we can clone into it
+            clone_repo(fsp, a)
+            checkout(fsp, a, Repo(fsp), True, False)
+            continue
+
+        repo = Repo(fsp)
+        if not repo.initalized: #if there isn't a .git folder in there
+            if force:
+                clear_folder(fsp)
+                logging.warning("Folder {0} is not a git repo and is being overwritten!".format(fsp))
+                clone_repo(fsp, a)
+                checkout(fsp, a, Repo(fsp), True, False)
+                continue
+            else:
+                if(ignore):
+                    logging.warning("Folder {0} is not a git repo but Force parameter not used.  Ignore State Allowed.".format(fsp))
+                    continue
+                else:
+                    logging.critical("Folder {0} is not a git repo and it is not empty.".format(fsp))
+                    raise Exception("Folder {0} is not a git repo and it is not empty".format(fsp))
+        
+        if repo.dirty:
+            if force:
+                clear_folder(fsp)
+                logging.warning("Folder {0} is a git repo but is dirty and is being overwritten as requested!".format(fsp))
+                clone_repo(fsp, a)
+                checkout(fsp, a, Repo(fsp), True, False)
+                continue
+            else:
+                if(ignore):
+                    logging.warning("Folder {0} is a git repo but is dirty and Force parameter not used.  Ignore State Allowed.".format(fsp))
+                    continue
+                else:
+                    logging.critical("Folder {0} is a git repo and is dirty.".format(fsp))
+                    raise Exception("Folder {0} is a git repo and is dirty.".format(fsp))
+
+        if repo.remotes.origin.url != a["Url"]:
+            if force:
+                clear_folder(fsp)
+                logging.warning("Folder {0} is a git repo but it is at a different repo and is being overwritten as requested!".format(fsp))
+                clone_repo(fsp, a)
+                checkout(fsp, a, Repo(fsp), True, False)
+            else:
+                if ignore:
+                    logging.warning("Folder {0} is a git repo pointed at a different remote.  Can't checkout or sync state".format(fsp))
+                    continue
+                else:
+                    logging.critical("The URL of the git Repo {2} in the folder {0} does not match {1}".format(fsp,a["Url"],repo.remotes.origin.url))
+                    raise Exception("The URL of the git Repo {2} in the folder {0} does not match {1}".format(fsp,a["Url"],repo.remotes.origin.url))
+        
+        checkout(fsp, a, repo, update_ok, ignore, force)
+        continue
+    
+    # print out the details- this is optional
+    for a in dependencies:
+        fsp = os.path.join(WORKSPACE_PATH, a["Path"])
         GitDetails = get_details(fsp)
-        logging.info("Git Details: Url: {0} Branch {1} Commit {2}".format(GitDetails["Url"], GitDetails["Branch"], GitDetails["Commit"]))
+        #print out details
+        logging.info("{3} = Git Details: Url: {0} Branch {1} Commit {2}".format(GitDetails["Url"], GitDetails["Branch"], GitDetails["Commit"],a["Path"]))
 
     return packages
 
@@ -59,8 +128,20 @@ def get_details(abs_file_system_path):
     head = repo.head.commit
     return {"Url": url, "Branch": active_branch, "Commit": head}
 
+def clear_folder(abs_file_system_path):
+    logging.warning("WARNING: Deleting contents of folder {0} to make way for Git repo".format(abs_file_system_path))
+    def dorw(action, name, exc):
+        os.chmod(name, stat.S_IWRITE)
+        if(os.path.isdir(name)):
+            os.rmdir(name)
+        else:
+            os.remove(name)
+
+    shutil.rmtree(abs_file_system_path, onerror=dorw)
+
 #Clones the repo in the folder we need using the dependency object from the json
 def clone_repo(abs_file_system_path, DepObj):
+    logging.critical("Cloning repo: {0}".format(DepObj["Url"]))
     dest = abs_file_system_path
     if not os.path.isdir(dest):
         os.makedirs(dest, exist_ok=True)
@@ -68,14 +149,44 @@ def clone_repo(abs_file_system_path, DepObj):
     if "Commit" in DepObj:
         shallow = False
     repo = Repo.clone_from(DepObj["Url"],dest, shallow = shallow)
-    if "Commit" in DepObj:
-        if DepObj["Commit"] == "*" or DepObj["Commit"] =="latest":
-            logging.warning("Invalid commit id- please remove the commit id")
-        elif not repo.checkout(DepObj["Commit"]):
-            repo.checkout(DepObj["Branch"])
-    elif "Branch" in DepObj:
-        repo.checkout(DepObj["Branch"])
-
-    repo.submodule("update", "--init", "--recursive")
+    
     return dest
+
+
+def checkout(abs_file_system_path, dep, repo, update_ok = False, ignore_dep_state_mismatch = False, force = False):
+
+    if "Commit" in dep:
+        if update_ok or force:
+            repo.fetch()
+            repo.checkout(commit = dep["Commit"])
+            repo.submodule("update", "--init", "--recursive")
+        else:
+            if repo.head.commit == dep["Commit"]:
+                logging.debug("Dependency {0} state ok without update".format(dep["Path"]))
+                return
+            elif ignore_dep_state_mismatch:
+                logging.warning("Dependency {0} is not in sync with requested commit.  Ignore state allowed".format(dep["Path"]))
+                return
+            else:
+                logging.critical("Dependency {0} is not in sync with requested commit.  Fail.".format(dep["Path"]))
+                raise Exception("Dependency {0} is not in sync with requested commit.  Fail.".format(dep["Path"]))
+
+    elif "Branch" in dep:
+        if update_ok or force:
+            repo.fetch()
+            repo.checkout(branch=dep["Branch"])
+            repo.submodule("update", "--init", "--recursive")
+        else:
+            if repo.active_branch == dep["Branch"]:
+                logging.debug("Dependency {0} state ok without update".format(dep["Path"]))
+                return
+            elif ignore_dep_state_mismatch:
+                logging.warning("Dependency {0} is not in sync with requested branch.  Ignore state allowed".format(dep["Path"]))
+                return
+            else:
+                error = "Dependency {0} is not in sync with requested branch. Expected: {1}. Got {2} Fail.".format(dep["Path"],dep["Branch"],repo.active_branch)
+                logging.critical(error)
+                raise Exception(error)
+    else:
+        raise Exception("Branch or Commit must be specified for {0}".format(dep["Path"]))
 
