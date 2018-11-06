@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     #Check Dependencies for Repo
     if "Dependencies" in mu_config:
-        pplist.extend(RepoResolver.resolve(WORKSPACE_PATH,mu_config["Dependencies"], ignore=buildArgs.git_ignore, force=buildArgs.git_force, update_ok=buildArgs.git_update))
+        pplist.extend(RepoResolver.resolve_all(WORKSPACE_PATH,mu_config["Dependencies"], ignore=buildArgs.git_ignore, force=buildArgs.git_force, update_ok=buildArgs.git_update))
 
 
 

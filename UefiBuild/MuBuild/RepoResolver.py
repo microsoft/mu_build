@@ -35,92 +35,95 @@ import stat
 #TODO: include link to flowchart?
 
 
+# checks out dependency at fsp
+def resolve(fsp, dependency, force=False,ignore=False, update_ok=False):
+    logging.info("Checking for dependency {0}".format(dependency["Path"]))
+
+    ##
+    ## NOTE - this process is defined in the Readme.md including flow chart for this behavior
+    ##
+    if not os.path.isdir(fsp):
+        clone_repo(fsp, dependency)
+        checkout(fsp, dependency, Repo(fsp), True, False)
+        return
+
+    folder_empty = len(os.listdir(fsp)) == 0
+    if folder_empty: #if the folder is empty, we can clone into it
+        clone_repo(fsp, dependency)
+        checkout(fsp, dependency, Repo(fsp), True, False)
+        return
+
+    repo = Repo(fsp)
+    if not repo.initalized: #if there isn't a .git folder in there
+        if force:
+            clear_folder(fsp)
+            logging.warning("Folder {0} is not a git repo and is being overwritten!".format(fsp))
+            clone_repo(fsp, dependency)
+            checkout(fsp, dependency, Repo(fsp), True, False)
+            return
+        else:
+            if(ignore):
+                logging.warning("Folder {0} is not a git repo but Force parameter not used.  Ignore State Allowed.".format(fsp))
+                return
+            else:
+                logging.critical("Folder {0} is not a git repo and it is not empty.".format(fsp))
+                raise Exception("Folder {0} is not a git repo and it is not empty".format(fsp))
+
+    if repo.dirty:
+        if force:
+            clear_folder(fsp)
+            logging.warning("Folder {0} is a git repo but is dirty and is being overwritten as requested!".format(fsp))
+            clone_repo(fsp, dependency)
+            checkout(fsp, dependency, Repo(fsp), True, False)
+            return
+        else:
+            if(ignore):
+                logging.warning("Folder {0} is a git repo but is dirty and Force parameter not used.  Ignore State Allowed.".format(fsp))
+                return
+            else:
+                logging.critical("Folder {0} is a git repo and is dirty.".format(fsp))
+                raise Exception("Folder {0} is a git repo and is dirty.".format(fsp))
+
+    if repo.remotes.origin.url != dependency["Url"]:
+        if force:
+            clear_folder(fsp)
+            logging.warning("Folder {0} is a git repo but it is at a different repo and is being overwritten as requested!".format(fsp))
+            clone_repo(fsp, dependency)
+            checkout(fsp, dependency, Repo(fsp), True, False)
+        else:
+            if ignore:
+                logging.warning("Folder {0} is a git repo pointed at a different remote.  Can't checkout or sync state".format(fsp))
+                return
+            else:
+                logging.critical("The URL of the git Repo {2} in the folder {0} does not match {1}".format(fsp,dependency["Url"],repo.remotes.origin.url))
+                raise Exception("The URL of the git Repo {2} in the folder {0} does not match {1}".format(fsp,dependency["Url"],repo.remotes.origin.url))
+
+    checkout(fsp, dependency, repo, update_ok, ignore, force)
+
 ##
 # dependencies is a list of objects - it has Path, Commit, Branch,
-def resolve(WORKSPACE_PATH,dependencies,force=False,ignore=False, update_ok=False):
+def resolve_all(WORKSPACE_PATH, dependencies, force=False, ignore=False, update_ok=False):
+
     packages = []
     if force:
         logging.info("Resolving dependencies by force")
     if update_ok:
         logging.info("Resolving dependencies with updates as needed")
-    for a in dependencies:
-        logging.info("Checking for dependency {0}".format(a["Path"]))
-
-        ##
-        ## NOTE - this process is defined in the Readme.md including flow chart for this behavior
-        ##
-        fsp = os.path.join(WORKSPACE_PATH, a["Path"])
+    for dependency in dependencies:
+        fsp = os.path.join(WORKSPACE_PATH, dependency["Path"])
         packages.append(fsp)
-        if not os.path.isdir(fsp):
-            clone_repo(fsp, a)
-            checkout(fsp, a, Repo(fsp), True, False)
-            continue
+        resolve(fsp, dependency, force, ignore, update_ok)
 
-        folder_empty = len(os.listdir(fsp)) == 0
-        if folder_empty: #if the folder is empty, we can clone into it
-            clone_repo(fsp, a)
-            checkout(fsp, a, Repo(fsp), True, False)
-            continue
-
-        repo = Repo(fsp)
-        if not repo.initalized: #if there isn't a .git folder in there
-            if force:
-                clear_folder(fsp)
-                logging.warning("Folder {0} is not a git repo and is being overwritten!".format(fsp))
-                clone_repo(fsp, a)
-                checkout(fsp, a, Repo(fsp), True, False)
-                continue
-            else:
-                if(ignore):
-                    logging.warning("Folder {0} is not a git repo but Force parameter not used.  Ignore State Allowed.".format(fsp))
-                    continue
-                else:
-                    logging.critical("Folder {0} is not a git repo and it is not empty.".format(fsp))
-                    raise Exception("Folder {0} is not a git repo and it is not empty".format(fsp))
-        
-        if repo.dirty:
-            if force:
-                clear_folder(fsp)
-                logging.warning("Folder {0} is a git repo but is dirty and is being overwritten as requested!".format(fsp))
-                clone_repo(fsp, a)
-                checkout(fsp, a, Repo(fsp), True, False)
-                continue
-            else:
-                if(ignore):
-                    logging.warning("Folder {0} is a git repo but is dirty and Force parameter not used.  Ignore State Allowed.".format(fsp))
-                    continue
-                else:
-                    logging.critical("Folder {0} is a git repo and is dirty.".format(fsp))
-                    raise Exception("Folder {0} is a git repo and is dirty.".format(fsp))
-
-        if repo.remotes.origin.url != a["Url"]:
-            if force:
-                clear_folder(fsp)
-                logging.warning("Folder {0} is a git repo but it is at a different repo and is being overwritten as requested!".format(fsp))
-                clone_repo(fsp, a)
-                checkout(fsp, a, Repo(fsp), True, False)
-            else:
-                if ignore:
-                    logging.warning("Folder {0} is a git repo pointed at a different remote.  Can't checkout or sync state".format(fsp))
-                    continue
-                else:
-                    logging.critical("The URL of the git Repo {2} in the folder {0} does not match {1}".format(fsp,a["Url"],repo.remotes.origin.url))
-                    raise Exception("The URL of the git Repo {2} in the folder {0} does not match {1}".format(fsp,a["Url"],repo.remotes.origin.url))
-        
-        checkout(fsp, a, repo, update_ok, ignore, force)
-        continue
-    
     # print out the details- this is optional
-    for a in dependencies:
-        fsp = os.path.join(WORKSPACE_PATH, a["Path"])
+    for dependency in dependencies:
+        fsp = os.path.join(WORKSPACE_PATH, dependency["Path"])
         GitDetails = get_details(fsp)
         #print out details
-        logging.info("{3} = Git Details: Url: {0} Branch {1} Commit {2}".format(GitDetails["Url"], GitDetails["Branch"], GitDetails["Commit"],a["Path"]))
+        logging.info("{3} = Git Details: Url: {0} Branch {1} Commit {2}".format(GitDetails["Url"], GitDetails["Branch"], GitDetails["Commit"], dependency["Path"]))
 
     return packages
 
 #Gets the details of a particular repo
-
 def get_details(abs_file_system_path):
     repo = Repo(abs_file_system_path)
     url = repo.remotes.origin.url
