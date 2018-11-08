@@ -469,8 +469,8 @@ def path_parse():
 if __name__ == '__main__':
 
     SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
-    UDK_PATH = os.path.dirname(os.path.dirname(os.path.dirname(SCRIPT_PATH)))
-    PY_LIB_PATH = os.path.join(UDK_PATH, "BaseTools", "PythonLibrary")
+    MUBUILD_PATH = os.path.dirname(os.path.dirname(os.path.dirname(SCRIPT_PATH)))
+    PY_LIB_PATH = os.path.join(MUBUILD_PATH, "PythonLibrary")
     sys.path.append(PY_LIB_PATH)
     from Uefi.EdkII.Parsers.InfParser import InfParser
     from Uefi.EdkII.PathUtilities import Edk2Path
