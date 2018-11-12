@@ -1,7 +1,7 @@
-import PluginManager
+import MuEnvironment.PluginManager
 import logging
 import os
-from UtilityFunctions import RunCmd
+from PythonLibrary.UtilityFunctions import RunCmd
 from UtilityFunctions import RunPythonScript
 from UtilityFunctions import CatalogSignWithSignTool
 import shutil
