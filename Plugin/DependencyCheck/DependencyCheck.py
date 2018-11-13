@@ -34,7 +34,7 @@ import time
 from io import StringIO
 
 
-from PythonLibrary.Uefi.EdkII.Parsers.InfParser import *
+from MuPythonLibrary.Uefi.EdkII.Parsers.InfParser import *
 
 class DependencyCheck(IMuBuildPlugin):
 

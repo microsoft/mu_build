@@ -1,9 +1,9 @@
 from MuEnvironment import PluginManager
 import logging
 import os
-from PythonLibrary.UtilityFunctions import RunCmd
-from PythonLibrary.UtilityFunctions import RunPythonScript
-from PythonLibrary.UtilityFunctions import CatalogSignWithSignTool
+from MuPythonLibrary.UtilityFunctions import RunCmd
+from MuPythonLibrary.UtilityFunctions import RunPythonScript
+from MuPythonLibrary.UtilityFunctions import CatalogSignWithSignTool
 import shutil
 import datetime
 

@@ -38,16 +38,13 @@ import threading
 import subprocess
 import shutil
 import datetime
+from MuPythonLibrary.UtilityFunctions import *
 
 SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
 UefiBaseToolsPath = os.path.dirname(os.path.dirname(SCRIPT_PATH))
 BinToolsPath = os.path.join(os.path.dirname(SCRIPT_PATH), "Bin", "Win32")
 
 os.environ["PATH"] = BinToolsPath + os.pathsep + os.environ["PATH"]
-
-#setup python path for shared python library
-sys.path.append(os.path.join(UefiBaseToolsPath, "PythonLibrary"))
-from UtilityFunctions import *
 
 OPEN_SOURCE_INITIATIVE_URL = "https://opensource.org/licenses/"
 LICENSE_TYPE_SUPPORTED = {

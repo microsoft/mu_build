@@ -44,10 +44,10 @@ FORMAT_VERSION_1 = (1, 4)   #Version 1: #OVERRIDE : VERSION | PATH_TO_MODULE | H
 # To do this the plugin class is only defined if in the build environment where the plugin classes are importable. 
 #
 #
-try: 
+try:
     from MuEnvironment import PluginManager
-    from PythonLibrary.Uefi.EdkII.Parsers.DscParser import *
-    from PythonLibrary.Uefi.EdkII.Parsers.InfParser import InfParser
+    from MuPythonLibrary.Uefi.EdkII.Parsers.DscParser import *
+    from MuPythonLibrary.Uefi.EdkII.Parsers.InfParser import InfParser
 
     class OverrideValidation(PluginManager.IUefiBuildPlugin):
 
@@ -472,8 +472,8 @@ if __name__ == '__main__':
     MUBUILD_PATH = os.path.dirname(os.path.dirname(os.path.dirname(SCRIPT_PATH)))
     PY_LIB_PATH = os.path.join(MUBUILD_PATH, "PythonLibrary")
     sys.path.append(PY_LIB_PATH)
-    from PythonLibrary.Uefi.EdkII.Parsers.InfParser import InfParser
-    from PythonLibrary.Uefi.EdkII.PathUtilities import Edk2Path
+    from MuPythonLibrary.Uefi.EdkII.Parsers.InfParser import InfParser
+    from MuPythonLibrary.Uefi.EdkII.PathUtilities import Edk2Path
 
     # Parse required paths passed from cmd line arguments
     Paths = path_parse()

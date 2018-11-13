@@ -33,9 +33,9 @@ import datetime
 import os
 import logging
 from MuEnvironment import PluginManager
-from PythonLibrary.Uefi.Capsule.CatGenerator import *
-from PythonLibrary.Uefi.Capsule.InfGenerator import *
-from PythonLibrary.UtilityFunctions import CatalogSignWithSignTool
+from MuPythonLibrary.Uefi.Capsule.CatGenerator import *
+from MuPythonLibrary.Uefi.Capsule.InfGenerator import *
+from MuPythonLibrary.UtilityFunctions import CatalogSignWithSignTool
 
 
 

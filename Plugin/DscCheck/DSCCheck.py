@@ -32,7 +32,7 @@
 import logging
 from MuEnvironment.PluginManager import IMuBuildPlugin
 import os
-from PythonLibrary.Uefi.EdkII.Parsers.DscParser import *
+from MuPythonLibrary.Uefi.EdkII.Parsers.DscParser import *
 
 class DSCCheck(IMuBuildPlugin):
 
