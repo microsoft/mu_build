@@ -45,7 +45,7 @@ FORMAT_VERSION_1 = (1, 4)   #Version 1: #OVERRIDE : VERSION | PATH_TO_MODULE | H
 #
 #
 try: 
-    import MuEnvironment.PluginManager
+    from MuEnvironment import PluginManager
     from PythonLibrary.Uefi.EdkII.Parsers.DscParser import *
     from PythonLibrary.Uefi.EdkII.Parsers.InfParser import InfParser
 

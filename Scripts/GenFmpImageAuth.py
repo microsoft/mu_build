@@ -25,8 +25,8 @@ import datetime
 import struct
 import subprocess
 import uuid
-from UtilityFunctions import RunCmd
-from UtilityFunctions import DetachedSignWithSignTool
+from PythonLibrary.UtilityFunctions import RunCmd
+from PythonLibrary.UtilityFunctions import DetachedSignWithSignTool
 
 
 gPhase3PackageOnly = False

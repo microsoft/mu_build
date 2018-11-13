@@ -32,7 +32,7 @@ import re
 import datetime
 import os
 import logging
-import MuEnvironment.PluginManager
+from MuEnvironment import PluginManager
 from PythonLibrary.Uefi.Capsule.CatGenerator import *
 from PythonLibrary.Uefi.Capsule.InfGenerator import *
 from PythonLibrary.UtilityFunctions import CatalogSignWithSignTool

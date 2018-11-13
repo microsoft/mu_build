@@ -27,7 +27,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ##
 ### 
-import MuEnvironment.PluginManager
+from MuEnvironment import PluginManager
 import logging
 import shutil
 import os
